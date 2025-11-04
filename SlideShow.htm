@@ -1,0 +1,198 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" >
+<HTML>
+	<HEAD>
+		<TITLE>PhotoShare Slide Show</TITLE>
+		<link rel="SHORTCUT ICON" href="webImages/photoshare.ico"></link>
+		<link rel="icon" type="image/ico" href="webImages/photoshare.ico"></link>
+		<style>
+			body	{ font-family: tahoma, arial, helvetica; font-size: 9pt; color: #C0C0C0}
+			table	{ font-family: tahoma, arial, helvetica; font-size: 9pt }
+			td	{ font-family: tahoma, arial, helvetica; font-size: 9pt }
+			a	{ color: #C0C0C0; text-decoration: none }
+		</style>
+		<script type="text/javascript" src="photoshare.js"></script>
+		<script>
+		// PhotoShare image sharing system. By codepoet80
+		// This code is the intellectual propery of codepoet80
+		// Created: September 2003
+		// https://github.com/codepoet80
+		window.onload = initPage;
+		var showImages = new Array();
+		var si;
+		var browser;
+		if (document.all)
+			browser = "IE";
+		else
+			browser = "MOZ";
+		function initPage()
+		{
+			var currLoc = document.location + "";
+			var locParts = currLoc.split("/");
+			currLoc = "";
+			for (var l=0;l<locParts.length-1;l++)
+			{
+				currLoc += locParts[l] + "/";
+			}
+			
+			var thisFolder = window.queryString.folder;
+			var fileXML = getFiles(thisFolder, "");
+			if (browser == "IE")
+			{
+				var xmlDoc = new ActiveXObject("Msxml2.DOMDocument");
+				xmlDoc.async = false;
+				xmlDoc.resolveExternals = false;			
+				if(xmlDoc.loadXML(fileXML))
+				{
+					var files = xmlDoc.selectNodes("//Item");
+					for (var i=0;i<files.length;i++)
+					{
+						if (files[i].getAttribute("Type") != "folder")
+						{
+							showImages[showImages.length] = currLoc + "photoshare.asmx/GetImage?Path=" + urlEncode(files[i].getAttribute("Path")) + "&Size=500&Color=Black";
+						}
+					}
+				}
+			}
+			else
+			{
+				xmlParser = new DOMParser();
+				fileXML = replace(fileXML, "<?xml version=\"1.0\" encoding=\"utf-8\"?>", "");
+				xmlDoc = xmlParser.parseFromString(fileXML, 'text/xml');
+				var files = xmlDoc.getElementsByTagName("Item");
+				for (var i=0;i<files.length;i++)
+				{
+					if (files[i].getAttribute("Type") != "folder")
+					{
+						showImages[showImages.length] = currLoc + "photoshare.asmx/GetImage?Path=" + urlEncode(files[i].getAttribute("Path")) + "&Size=500&Rotate=0";
+					}
+				}
+			}
+			//showImg.src = showImages[0];
+			//si = setInterval("startShow()", "3000");
+			showImage();
+		}
+		
+		var pos = 0;
+		function startShow()
+		{
+			if (browser == "IE")
+			{
+				if (showImg.readyState == "complete")
+				{
+					showImg.src = showImages[pos];
+					if (pos < showImages.length -1)
+						pos++;
+					else
+						pos = 0;
+				}
+			}
+			else
+			{
+				document.getElementById("showImg").src = showImages[pos];
+				if (pos < showImages.length -1)
+					pos++;
+				else
+					pos = 0;
+			}
+		}
+		
+		function goBack()
+		{
+			if (!Paused)
+			{
+				clearTimeout(li);
+				pos--;
+				pos--;
+				if (pos < 0)
+					pos = 0;
+				showImage();
+			}
+		}
+		
+		function goNext()
+		{
+			if (!Paused)
+			{
+				clearTimeout(li);
+				if (pos > showImages.length -1)
+					pos = 0;
+				showImage();
+			}
+		}
+
+		var Paused = false;
+		function togglePause()
+		{
+			if (!Paused)
+			{
+				Paused = true;
+				document.getElementById("pause").innerText = "Play";
+				clearTimeout(li);
+			}
+			else
+			{
+				Paused = false;
+				document.getElementById("pause").innerText = "Pause";
+				showImage();
+			}
+		}
+	
+		var li;
+		function checkImage()
+		{
+			clearTimeout(li);
+			if (browser == "IE")
+			{
+				if (document.getElementById("showImg").readyState == "complete")
+				{
+					li = setTimeout("showImage()", 3000);
+				}
+				else
+					li = setTimeout("checkImage()", 500);
+			}
+			else
+				li = setTimeout("showImage()", 3000);
+		}
+
+		function showImage(force)
+		{
+			if (!Paused)
+			{
+				document.getElementById("showImg").src = showImages[pos];
+				if (pos < showImages.length -1)
+					pos++;
+				else
+					pos = 0;
+				checkImage();
+			}
+		}
+		
+		function toggleControls()
+		{
+			if (document.getElementById("controls").style.visibility == 'visible')
+				document.getElementById("controls").style.visibility = 'hidden'
+			else
+				document.getElementById("controls").style.visibility = 'visible';
+		}
+		</script>
+	</HEAD>
+	<BODY bgcolor="black">
+		<table width="100%" height="100%" border="0">
+			<tr>
+				<td height="20" id="controls" style="visibility:visible">
+					<a href="javascript:window.close()">Close</a> | <a href="javascript:goBack()">< 
+						Back</a> | <a href="javascript:togglePause()">
+						<span id="pause">Pause</span></a> | <a href="javascript:goNext()">Next ></a>
+				</td>
+			</tr>
+			<tr>
+				<td width="100%" align="center" valign="middle" onclick="toggleControls()">
+					<img width="500" id="showImg" />
+				</td>
+			</tr>
+		</table>
+	</BODY>
+</HTML>
+
+ 
+ 

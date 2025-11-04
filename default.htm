@@ -1,0 +1,370 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" >
+<HTML>
+	<HEAD>
+		<TITLE>PhotoShare Browser</TITLE>
+		<link rel="SHORTCUT ICON" href="webImages/photoshare.ico"></link>
+		<link rel="icon" type="image/ico" href="webImages/photoshare.ico"></link>
+		<style> body { font-family: tahoma, arial, helvetica; font-size: 9pt }
+	table { font-family: tahoma, arial, helvetica; font-size: 9pt }
+	td { font-family: tahoma, arial, helvetica; font-size: 9pt }
+	ul { margin-top:8px; }
+	li { margin-left: -35px; font-family: tahoma, arial, helvetica; font-size: 9pt; list-style-type:none; margin-top: 5px; text-overflow:ellipsis; overflow:hidden; cursor: pointer; }
+	a { color: black; text-decoration: none; cursor: pointer; }
+	.section { border: 1px solid black; background-color: #F0F1F5; padding: 3 }
+	.sectitle { font-weight: bold; background-color: #80809A; color: white; padding: 3 }
+	</style>
+		<script type="text/javascript" src="photoshare.js"></script>
+		<script>
+		// PhotoShare image sharing system. By codepoet80
+		// This code is the intellectual propery of codepoet80
+		// https://github.com/codepoet80
+		window.onload = initPage;
+		window.onresize = sizePage;
+		var currLoc = document.location + "";
+		var browser;
+		if (document.all)
+			browser = "IE";
+		else
+			browser = "MOZ";
+		function sizePage()
+		{
+			if (browser == "IE")
+			{
+				document.getElementById("divImages").style.height = document.body.clientHeight - 10;
+				document.getElementById("divImages").style.width = document.body.clientWidth-200;
+			}
+		}
+		var thisFolder;
+		var folderDepth;
+		var lstImages = new Array();
+		function initPage()
+		{
+			sizePage();
+			document.getElementById("divImages").innerHTML = "&nbsp;<p align='center'>Loading image list...</p>"
+			window.status = "Loading image list...";
+			var locParts = currLoc.split("/");
+			currLoc = "";
+			for (var l=0;l<locParts.length-1;l++)
+			{
+				currLoc += locParts[l] + "/";
+			}
+			
+			try
+			{
+				thisFolder = window.queryString.folder;
+			}
+			catch(e)
+			{
+				thisFolder = "Images";
+			}
+			if (thisFolder == null || thisFolder == "")
+			{
+				thisFolder = "Images";
+			}
+			try
+			{
+				folderDepth = window.queryString.folderDepth;
+			}
+			catch(e)
+			{
+				folderDepth = 0;
+			}
+			if (folderDepth == null || folderDepth == "" || folderDepth == undefined)
+				folderDepth = 0;
+			
+			var countFolders = thisFolder.split("\\");
+			document.title = "PhotoShare Browser - " + urlDecode(countFolders[countFolders.length-1]);
+			if (countFolders.length > 1)
+			{
+				var findParent = "";
+				for (var f=0;f<countFolders.length-1;f++)
+				{
+					findParent += countFolders[f];
+					if (f<countFolders.length - 2)
+						findParent += "\\\\";
+				}
+				var newF = document.createElement("LI");			
+				newF.style.marginLeft = "-8px";
+				newF.title = "Go up one folder";
+				newF.onclick = changeFolder
+				newF.innerHTML = "<img src='webImages/folder-up.gif' border='0' align='absmiddle'> Up One Folder";
+				newF.id = findParent;
+				if (folderDepth*1 != 0)
+					document.getElementById("divFolders").appendChild(newF);
+			}
+			var fileXML = getFiles(thisFolder, "");
+			if (browser == "IE")
+			{
+				var xmlDoc = new ActiveXObject("Msxml2.DOMDocument");
+				xmlDoc.async = false;
+				xmlDoc.resolveExternals = false;
+				if(xmlDoc.loadXML(fileXML))
+				{
+					var files = xmlDoc.selectNodes("//Item");
+					for (var i=0;i<files.length;i++)
+					{
+						if (files[i].getAttribute("Type") == "gif" || files[i].getAttribute("Type") == "jpg")
+						{
+							var currImage = new Object();
+							currImage.Path = currLoc + "photoshare.asmx/GetImage?Path=" + urlEncode(files[i].getAttribute("Path"));
+							currImage.Target = currLoc + "PictureView.htm?folder=" + thisFolder + "&currPicture=" + urlEncode(files[i].getAttribute("Path"));
+							currImage.Name = files[i].getAttribute("Name");
+							currImage.Size = files[i].getAttribute("Size");
+							currImage.FileDate = files[i].getAttribute("Date");
+							lstImages[lstImages.length] = currImage;
+						}
+						else if (files[i].getAttribute("Type") == "folder")
+						{
+							var newF = document.createElement("LI");
+							currFolder = thisFolder + "\\" + files[i].getAttribute("Name");
+							newF.style.marginLeft="-8px";
+							newF.title = files[i].getAttribute("Name");
+							newF.onclick = changeFolder
+							newF.innerHTML = "<img src='webImages/folder-s.gif' title='" + files[i].getAttribute("Name") + "' border='0' align='absmiddle'> " + files[i].getAttribute("Name")
+							newF.id = replace(urlEncode(currFolder), "\\", "\\\\");
+							divFolders.appendChild(newF);
+						}
+					}
+				}
+			}
+			else
+			{
+				xmlParser = new DOMParser();
+				fileXML = replace(fileXML, "<?xml version=\"1.0\" encoding=\"utf-8\"?>", "");
+				xmlDoc = xmlParser.parseFromString(fileXML, 'text/xml');
+			
+				var files = xmlDoc.getElementsByTagName("Item");
+				for (var i=0;i<files.length;i++)
+				{
+					if (files[i].getAttribute("Type") != "folder")
+					{
+						var currImage = new Object();
+						currImage.Path = currLoc + "photoshare.asmx/GetImage?Path=" + urlEncode(files[i].getAttribute("Path"));
+						currImage.Target = currLoc + "PictureView.htm?folder=" + thisFolder + "&currPicture=" + urlEncode(files[i].getAttribute("Path"));
+						currImage.Name = files[i].getAttribute("Name");
+						currImage.Size = files[i].getAttribute("Size");
+						currImage.FileDate = files[i].getAttribute("Date");
+						lstImages[lstImages.length] = currImage;
+					}
+					else
+					{
+						var newF = document.createElement("LI");
+						currFolder = thisFolder + "\\" + files[i].getAttribute("Name");
+						newF.style.marginLeft = "-8px";
+						newF.title = files[i].getAttribute("Name");
+						newF.onclick = changeFolder
+						var currName = files[i].getAttribute("Name")
+						if (browser != "IE" && currName.length > 19)
+						{
+							currName = currName.substring(0, 19);
+							currName += "...";
+						}
+						newF.innerHTML = "<img src='webImages/folder-s.gif' title='" + files[i].getAttribute("Name") + "' border='0' align='absmiddle'> " + currName;
+						newF.id = replace(urlEncode(currFolder), "\\", "\\\\");
+						document.getElementById("divFolders").appendChild(newF);
+					}
+				}
+			}
+				
+			xmlDoc = null;
+			document.getElementById("divImages").innerHTML = "<br>" + lstImages.length + " images found<br>No image selected";
+			drawImages(lstImages);
+		}
+		
+		function drawImages(lstImages)
+		{
+			document.getElementById("divImages").innerHTML = "";
+			if (lstImages.length == 0)
+			{
+				document.getElementById("divImages").innerHTML = "&nbsp;<p align='center'>No images to display in this view</p>"
+				window.status = "No images found";
+			}
+			else
+			{
+				for (var i=0;i<lstImages.length;i++)
+				{
+					var newI = document.createElement("IMG");
+					newI.src = lstImages[i].Path + "&Size=100&Rotate=0";
+					newI.title = lstImages[i].Name;
+					newI.id = i;
+					newI.Path = lstImages[i].Path;
+					newI.Name = lstImages[i].Name;
+					newI.Type = lstImages[i].Type;
+					newI.FileDate = lstImages[i].FileDate;
+					newI.Size = lstImages[i].Size;
+					newI.Target = lstImages[i].Target;
+					newI.style.border = "1px solid #C0C0C0";
+					newI.style.margin = "10px";
+					newI.onclick = aboutImage;
+					newI.ondblclick = showImage;
+					newI.onreadystatechange = imageReady;
+					document.getElementById("divImages").appendChild(newI);
+				}
+			}
+		}
+		
+		function deselectAll()
+		{
+			for (var i=0;i<document.getElementById("divImages").childNodes.length;i++)
+			{
+				document.getElementById("divImages").childNodes[i].style.border="1px solid #C0C0C0";
+			}
+			document.getElementById("liSave").style.visibility="hidden";
+			document.getElementById("divItemInfo").innerHTML = "<br>" + lstImages.length + " images found<br>No image selected"
+		}
+		
+		var selectedImg;
+		function aboutImage()
+		{
+			if (this.id == "divImages")
+			{
+				deselectAll();
+				window.status = "Click on an image to view it's properties";
+			}
+			else
+			{
+				deselectAll();
+				selectedImg = this;
+				this.style.border = "1px solid highlight";
+				var datePart = this.FileDate + "";
+				var dateParts = datePart.split(" ");
+				var currName = this.Name;
+				document.getElementById("divItemInfo").innerHTML = "<b>" + currName + "</b><br>Date: " + dateParts[0] + "<br>Time: " + dateParts[1] + "<br>Size: " + this.Size;
+				document.getElementById("liSave").style.visibility="visible";
+				window.status = "Double click to view image";
+			}
+		}
+		
+		function showImage()
+		{
+			//var thisImg = lstImages[window.event.srcElement.id];
+			window.open (replace(this.Target, "\\", "\\\\"), "PictureViewer", "directories=no,location=no,menubar=no,resizable=yes,status=yes,scrollbars=yes");
+		}
+		
+		function slideShow()
+		{
+			window.open("slideShow.htm?folder=" + replace(thisFolder, "\\", "\\\\"), "SlideShow", "fullscreen");
+		}
+		
+		function saveImage()
+		{
+			var newWin = window.open(selectedImg.Path + "&Size=1024&Rotate=0", "newWin");
+		}
+		
+		function imageReady()
+		{
+			var imageCount = divImages.children.length;
+			var loadedCount = 0;
+			for (var i=0;i<divImages.children.length;i++)
+			{
+				if (divImages.children[i].readyState == "complete")
+					loadedCount++;
+			}
+			if (loadedCount > 0)
+				window.status = "Loading images: " + Math.round((loadedCount / imageCount) * 100) + "% complete";
+			if (loadedCount == imageCount)
+				window.status = "Click on an image to view it's properties";
+		}
+		
+		function showTip(type)
+		{
+			if (type == "slideshow")
+				window.status = "Show a slide show of images in this album"
+			else if (type == "save")
+				window.status = "Loads the full version of this image in a new window so you can save it"
+			else if (type == "refresh")
+				window.status = "Refreshes the current album"
+			else if (type == "last")
+				window.status = "";
+		}
+		
+		function changeFolder()
+		{
+			if (this.innerHTML.indexOf("folder-up.gif") != -1)
+			{
+				folderDepth = (folderDepth*1)-1;
+				document.location="default.htm?folder=" + this.id + "&folderDepth=" + folderDepth;
+			}
+			else
+			{
+				folderDepth = (folderDepth*1)+1;
+				document.location="default.htm?folder=" + this.id + "&folderDepth=" + folderDepth;
+			}
+		}
+		</script>
+	</HEAD>
+	<BODY marginheight="0" marginwidth="0" topmargin="0" leftmargin="0" style="BACKGROUND-POSITION:right bottom; BACKGROUND-ATTACHMENT:fixed; BACKGROUND-IMAGE:url(webImages/photoshare-background.gif); BACKGROUND-REPEAT:no-repeat"
+		oncontextmenu="return false" ondragstart="return false" ATOMICSELECTION="true">
+		<table width="100%" height="100%" cellpadding="8" cellspacing="0" border="0" ATOMICSELECTION="true">
+			<tr>
+				<td bgcolor="#babdcd" valign="top" width="185" height="100%" align="center">
+					<table width="160" height="100%" cellpadding="0" cellspacing="0" border="0">
+						<tr>
+							<td id="tdActions" height="100" width="160" class="section" valign="top">
+								<div class="secTitle" width="100%"><img src="webImages/actions-s.gif" align="absMiddle" width="16" height="16">
+									Actions</div>
+								<div id="divActions">
+									<ul>
+										<li onclick="slideShow()" onmouseover="showTip('slideshow')" onmouseout="showTip('last')">
+											<img src="webImages/slideshow.gif" align="absMiddle" border="0" width="16" height="16">
+										Slide Show
+										<li onclick="document.location.reload()" onmouseover="showTip('refresh')" onmouseout="showTip('last')">
+											<img src="webImages/refresh.gif" align="absMiddle" border="0" width="16" height="16">
+										Refresh
+										<li id="liSave" style="VISIBILITY: hidden" onclick="saveImage()" onmouseover="showTip('save')"
+											onmouseout="showTip('last')">
+											<img src="webImages/save.gif" align="absMiddle" border="0" width="16" height="16">
+											Save this Image</li>
+									</ul>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td><img src="webImages/none.gif" width="160" height="10"></td>
+						</tr>
+						<tr>
+							<td height="100" class="section" width="160" valign="top">
+								<div class="secTitle" width="100%"><img src="webImages/picture-s.gif" align="absMiddle" width="16" height="16">
+									Image</div>
+								<div id="divItemInfo" style="PADDING-RIGHT:5px; PADDING-LEFT:5px; PADDING-BOTTOM:5px; OVERFLOW:hidden; WIDTH:155px; PADDING-TOP:5px; TEXT-OVERFLOW:ellipsis">
+									<br>
+									No image selected</div>
+							</td>
+						</tr>
+						<tr>
+							<td><img src="webImages/none.gif" width="160" height="10"></td>
+						</tr>
+						<tr>
+							<td height="100" class="section" width="160" valign="top">
+								<div class="secTitle" width="100%"><img src="webImages/picturefolder-s.gif" align="absMiddle" width="16" height="16">
+									Folders</div>
+								<div NOWRAP style="OVERFLOW: hidden; WIDTH: 160px; TEXT-OVERFLOW: ellipsis">
+									<ul id="divFolders" style="PADDING-LEFT:6px; MARGIN-BOTTOM:5px; MARGIN-LEFT:7px; PADDING-TOP:0px">
+									</ul>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td height="100%" valign="bottom" bgcolor="#babdcd">
+								<br>
+								&nbsp;<br>
+								<span style="COLOR: #80809a">
+								<a style="COLOR: #80809a" href="https://github.com/codepoet80/PhotoShare/" target="_blank">
+										<IMG src="photosharebadge.gif" border="0" width="80" height="15"></a>&nbsp;v1.6<br>
+								� 2003 <a style="COLOR: #80809a" href="https://github.com/codepoet80 target="_blank">codepoet80</a>
+								</span>
+							</td>
+						</tr>
+					</table>
+				</td>
+				<td width="100%" valign="top">
+					<div id="divImages" width="100%" height="100%" ATOMICSELECTION="true">
+					</div>
+				</td>
+			</tr>
+		</table>
+	</BODY>
+</HTML>
+
+ 
+ 

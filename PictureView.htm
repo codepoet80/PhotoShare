@@ -1,0 +1,214 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" >
+<HTML>
+	<HEAD>
+		<TITLE>PhotoShare Picture Viewer</TITLE>
+		<style>
+			body	{ font-family: tahoma, arial, helvetica; font-size: 9pt }
+			table	{ font-family: tahoma, arial, helvetica; font-size: 9pt }
+			td	{ font-family: tahoma, arial, helvetica; font-size: 9pt }
+			li	{ font-family: tahoma, arial, helvetica; font-size: 9pt; list-style-type:none; margin-left: -11px; margin-top: 5px; text-overflow:ellipsis; cursor: hand }
+			a	{ color: black; text-decoration: none; cursor: hand }
+			.section { border: 1px solid black; background-color: #F0F1F5; padding: 3 }
+			.sectitle { font-weight: bold; background-color: #80809A; color: white; padding: 3 }
+		</style>
+		<script type="text/javascript" src="photoshare.js"></script>
+		<script>
+		window.onload = initPage;
+		var currLoc = document.location + "";
+		var currPic;
+		var useSize = 400;
+		var rotatePos = 0;
+		var browser;
+		if (document.all)
+			browser = "IE";
+		else
+			browser = "MOZ";
+			
+		var lstImages = new Array();
+		function initPage()
+		{
+			window.focus();
+			if (document.body.clientHeight > 700)
+				useSize = 600;
+			if (document.body.clientHeight > 500 && document.body.clientHeight < 700)
+				useSize = 400;
+			else if (document.body.clientHeight < 500)
+				useSize = 300;
+				
+			window.status = "Loading image list...";
+			var locParts = currLoc.split("/");
+			currLoc = "";
+			for (var l=0;l<locParts.length-1;l++)
+			{
+				currLoc += locParts[l] + "/";
+			}
+			
+			try
+			{
+				thisFolder = window.queryString.folder;
+			}
+			catch(e)
+			{
+				thisFolder = "Images";
+			}
+			if (thisFolder == null || thisFolder == "")
+			{
+				thisFolder = "Images";
+			}
+			currPic = window.queryString.currPicture;
+			
+			var fileXML = getFiles(thisFolder, "");
+			if (browser == "IE")
+			{
+				var xmlDoc = new ActiveXObject("Msxml2.DOMDocument");
+				xmlDoc.async = false;
+				xmlDoc.resolveExternals = false;
+				if(xmlDoc.loadXML(fileXML))
+				{
+					var files = xmlDoc.selectNodes("//Item");
+					for (var i=0;i<files.length;i++)
+					{
+						if (files[i].getAttribute("Type") != "folder")
+						{
+							var currImage = new Object();
+							currImage.Path = currLoc + "photoshare.asmx/GetImage?Path=" + urlEncode(files[i].getAttribute("Path"));
+							currImage.Target = currLoc + "showImage.htm?path=" + urlEncode(files[i].getAttribute("Path"));
+							currImage.Name = files[i].getAttribute("Name");
+							currImage.Size = files[i].getAttribute("Size");
+							currImage.Date = files[i].getAttribute("Date");
+							lstImages[lstImages.length] = currImage;
+						}
+					}
+				}
+			}
+			else
+			{
+				xmlParser = new DOMParser();
+				fileXML = replace(fileXML, "<?xml version=\"1.0\" encoding=\"utf-8\"?>", "");
+				xmlDoc = xmlParser.parseFromString(fileXML, 'text/xml');
+				var files = xmlDoc.getElementsByTagName("Item");
+				for (var i=0;i<files.length;i++)
+				{
+					if (files[i].getAttribute("Type") != "folder")
+					{
+						var currImage = new Object();
+						currImage.Path = currLoc + "photoshare.asmx/GetImage?Path=" + urlEncode(files[i].getAttribute("Path"));
+						currImage.Target = currLoc + "showImage.htm?path=" + urlEncode(files[i].getAttribute("Path"));
+						currImage.Name = files[i].getAttribute("Name");
+						currImage.Size = files[i].getAttribute("Size");
+						currImage.Date = files[i].getAttribute("Date");
+						lstImages[lstImages.length] = currImage;
+					}
+				}
+			}
+			showPicture(currPic);
+			xmlDoc = null;
+		}
+		
+		function showPicture(picture)
+		{
+			window.status = "Loading picture...";
+			document.getElementById("tdCurrPic").innerHTML = "Loading picture...";
+			
+			picture = picture.split("Path=")
+			picture = picture[picture.length-1];
+			for (var p=0;p<lstImages.length;p++)
+			{
+				var thisPic = lstImages[p].Path.split("Path=");
+				thisPic = thisPic[thisPic.length-1];
+				if (thisPic.toLowerCase() == picture.toLowerCase())
+				{
+					document.getElementById("tdCurrPic").innerHTML = "<img src='" + lstImages[p].Path + "&Size=" + useSize + "&Rotate=" + rotatePos + "' alt='" + lstImages[p].Name + " (" + lstImages[p].Date + ")'>";
+					window.status = lstImages[p].Name + " (" + lstImages[p].Date + ") - " + lstImages[p].Size;
+					document.title = lstImages[p].Name + " - PhotoShare Picture Viewer";
+					currPic = thisPic;
+				}
+			}
+		}
+		
+		function goNext()
+		{
+			var usePos = 0;
+			for (var p=0;p<lstImages.length;p++)
+			{
+				var thisPic = lstImages[p].Path.split("Path=");
+				thisPic = thisPic[thisPic.length-1];
+				if (thisPic.toLowerCase() == currPic.toLowerCase())
+				{
+					if (p == lstImages.length - 1)
+						usePos = 0;
+					else
+						usePos = p + 1;
+				}
+			}
+			showPicture(lstImages[usePos].Path);
+		}
+		
+		function goBack()
+		{
+			var usePos = 0;
+			for (var p=0;p<lstImages.length;p++)
+			{
+				var thisPic = lstImages[p].Path.split("Path=");
+				thisPic = thisPic[thisPic.length-1];
+				if (thisPic.toLowerCase() == currPic.toLowerCase())
+				{
+					if (p == 0)
+						usePos = lstImages.length - 1;
+					else
+						usePos = p - 1;
+				}
+			}
+			showPicture(lstImages[usePos].Path);
+		}
+		
+		function zoomIn()
+		{
+			if (useSize < 1000)
+				useSize = useSize + 100;
+			showPicture(currPic);
+		}
+		
+		function zoomOut()
+		{
+			if (useSize > 100)
+				useSize = useSize - 100;
+			showPicture(currPic);
+		}
+		
+		function rotateLeft()
+		{
+			if (rotatePos > 0)
+				rotatePos--;
+			else
+				rotatePos = 3;
+			showPicture(currPic);
+		}
+		
+		function rotateRight()
+		{
+			if (rotatePos < 3)
+				rotatePos++;
+			else
+				rotatePos = 0;
+			showPicture(currPic);
+		}
+		</script>
+	</HEAD>
+	<BODY>
+		<table width="100%" height="100%" border="0">
+			<tr>
+				<td height="100%" align="center" id="tdCurrPic">Loading picture...</td>
+			</tr>
+			<tr>
+				<td align="center"><img src="webImages/goBack.gif" onclick="goBack()" style="cursor:pointer" alt="Back" style="cursor:pointer" width="16" height="16">&nbsp;&nbsp;<img src="webImages/goNext.gif" onclick="goNext()" style="cursor:pointer" alt="Next" width="16" height="16">
+				&nbsp;<img src="webImages/seperator.gif" width="16" height="16">&nbsp;<img src="webImages/zoomIn.gif" onclick="zoomIn()" style="cursor:pointer" alt="Zoom In" width="16" height="16">&nbsp;&nbsp;<img src="webImages/zoomOut.gif" onclick="zoomOut()" style="cursor:pointer" alt="Zoom Out" width="16" height="16">
+				&nbsp;<img src="webImages/seperator.gif" width="16" height="16">&nbsp;<img src="webImages/flip-left.gif" onclick="rotateLeft()" style="cursor:pointer" alt="Rotate Left" width="16" height="16">&nbsp;&nbsp;<img src="webImages/flip-right.gif" onclick="rotateRight()" style="cursor:pointer" alt="Rotate Right" width="16" height="16">
+				</td>
+			</tr>
+		</table>
+	</BODY>
+</HTML>
+
+ 
+ 

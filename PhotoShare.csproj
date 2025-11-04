@@ -1,0 +1,286 @@
+<VisualStudioProject>
+    <CSHARP
+        ProjectType = "Web"
+        ProductVersion = "7.10.3077"
+        SchemaVersion = "2.0"
+        ProjectGuid = "{80C1A603-ED68-4222-81B2-B99323239A96}"
+    >
+        <Build>
+            <Settings
+                ApplicationIcon = ""
+                AssemblyKeyContainerName = ""
+                AssemblyName = "PhotoShare"
+                AssemblyOriginatorKeyFile = ""
+                DefaultClientScript = "JScript"
+                DefaultHTMLPageLayout = "Grid"
+                DefaultTargetSchema = "IE50"
+                DelaySign = "false"
+                OutputType = "Library"
+                PreBuildEvent = ""
+                PostBuildEvent = ""
+                RootNamespace = "PhotoShare"
+                RunPostBuildEvent = "OnBuildSuccess"
+                StartupObject = ""
+            >
+                <Config
+                    Name = "Debug"
+                    AllowUnsafeBlocks = "false"
+                    BaseAddress = "285212672"
+                    CheckForOverflowUnderflow = "false"
+                    ConfigurationOverrideFile = ""
+                    DefineConstants = "DEBUG;TRACE"
+                    DocumentationFile = ""
+                    DebugSymbols = "true"
+                    FileAlignment = "4096"
+                    IncrementalBuild = "false"
+                    NoStdLib = "false"
+                    NoWarn = ""
+                    Optimize = "false"
+                    OutputPath = "bin\"
+                    RegisterForComInterop = "false"
+                    RemoveIntegerChecks = "false"
+                    TreatWarningsAsErrors = "false"
+                    WarningLevel = "4"
+                />
+                <Config
+                    Name = "Release"
+                    AllowUnsafeBlocks = "false"
+                    BaseAddress = "285212672"
+                    CheckForOverflowUnderflow = "false"
+                    ConfigurationOverrideFile = ""
+                    DefineConstants = "TRACE"
+                    DocumentationFile = ""
+                    DebugSymbols = "false"
+                    FileAlignment = "4096"
+                    IncrementalBuild = "false"
+                    NoStdLib = "false"
+                    NoWarn = ""
+                    Optimize = "true"
+                    OutputPath = "bin\"
+                    RegisterForComInterop = "false"
+                    RemoveIntegerChecks = "false"
+                    TreatWarningsAsErrors = "false"
+                    WarningLevel = "4"
+                />
+            </Settings>
+            <References>
+                <Reference
+                    Name = "System"
+                    AssemblyName = "System"
+                    HintPath = "..\..\..\WINDOWS\Microsoft.NET\Framework\v1.1.4322\System.dll"
+                />
+                <Reference
+                    Name = "System.Data"
+                    AssemblyName = "System.Data"
+                    HintPath = "..\..\..\WINDOWS\Microsoft.NET\Framework\v1.1.4322\System.Data.dll"
+                />
+                <Reference
+                    Name = "System.Web"
+                    AssemblyName = "System.Web"
+                    HintPath = "..\..\..\WINDOWS\Microsoft.NET\Framework\v1.1.4322\System.Web.dll"
+                />
+                <Reference
+                    Name = "System.Web.Services"
+                    AssemblyName = "System.Web.Services"
+                    HintPath = "..\..\..\WINDOWS\Microsoft.NET\Framework\v1.1.4322\System.Web.Services.dll"
+                />
+                <Reference
+                    Name = "System.XML"
+                    AssemblyName = "System.Xml"
+                    HintPath = "..\..\..\WINDOWS\Microsoft.NET\Framework\v1.1.4322\System.XML.dll"
+                />
+                <Reference
+                    Name = "System.Drawing"
+                    AssemblyName = "System.Drawing"
+                    HintPath = "..\..\..\WINDOWS\Microsoft.NET\Framework\v1.1.4322\System.Drawing.dll"
+                />
+            </References>
+        </Build>
+        <Files>
+            <Include>
+                <File
+                    RelPath = "AssemblyInfo.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "default.htm"
+                    BuildAction = "Content"
+                />
+                <File
+                    RelPath = "Global.asax"
+                    SubType = "Component"
+                    BuildAction = "Content"
+                />
+                <File
+                    RelPath = "Global.asax.cs"
+                    DependentUpon = "Global.asax"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Global.asax.resx"
+                    DependentUpon = "Global.asax.cs"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "License.txt"
+                    BuildAction = "Content"
+                />
+                <File
+                    RelPath = "PhotoShare.asmx"
+                    BuildAction = "Content"
+                />
+                <File
+                    RelPath = "PhotoShare.asmx.cs"
+                    DependentUpon = "PhotoShare.asmx"
+                    SubType = "Component"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "PhotoShare.asmx.resx"
+                    DependentUpon = "PhotoShare.asmx.cs"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "PhotoShare.gif"
+                    BuildAction = "Content"
+                />
+                <File
+                    RelPath = "photoshare.ico"
+                    BuildAction = "Content"
+                />
+                <File
+                    RelPath = "photoshare.js"
+                    BuildAction = "Content"
+                />
+                <File
+                    RelPath = "photosharebadge.gif"
+                    BuildAction = "Content"
+                />
+                <File
+                    RelPath = "photoshare-icon.gif"
+                    BuildAction = "Content"
+                />
+                <File
+                    RelPath = "photoshare-s.gif"
+                    BuildAction = "Content"
+                />
+                <File
+                    RelPath = "PhotoUtilities.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "PictureView.htm"
+                    BuildAction = "Content"
+                />
+                <File
+                    RelPath = "Readme.txt"
+                    BuildAction = "Content"
+                />
+                <File
+                    RelPath = "SlideShow.htm"
+                    BuildAction = "Content"
+                />
+                <File
+                    RelPath = "Web.config"
+                    BuildAction = "Content"
+                />
+                <File
+                    RelPath = "webImages\actions-s.gif"
+                    BuildAction = "Content"
+                />
+                <File
+                    RelPath = "webImages\flip-left.gif"
+                    BuildAction = "Content"
+                />
+                <File
+                    RelPath = "webImages\flip-right.gif"
+                    BuildAction = "Content"
+                />
+                <File
+                    RelPath = "webImages\folder.gif"
+                    BuildAction = "Content"
+                />
+                <File
+                    RelPath = "webImages\folder-s.gif"
+                    BuildAction = "Content"
+                />
+                <File
+                    RelPath = "webImages\folder-up.gif"
+                    BuildAction = "Content"
+                />
+                <File
+                    RelPath = "webImages\goBack.gif"
+                    BuildAction = "Content"
+                />
+                <File
+                    RelPath = "webImages\goNext.gif"
+                    BuildAction = "Content"
+                />
+                <File
+                    RelPath = "webImages\none.gif"
+                    BuildAction = "Content"
+                />
+                <File
+                    RelPath = "webImages\PhotoShare.gif"
+                    BuildAction = "Content"
+                />
+                <File
+                    RelPath = "webImages\PhotoShare.ico"
+                    BuildAction = "Content"
+                />
+                <File
+                    RelPath = "webImages\photoshare-background.gif"
+                    BuildAction = "Content"
+                />
+                <File
+                    RelPath = "webImages\photosharebadge.gif"
+                    BuildAction = "Content"
+                />
+                <File
+                    RelPath = "webImages\photoshare-icon.gif"
+                    BuildAction = "Content"
+                />
+                <File
+                    RelPath = "webImages\photoshare-s.gif"
+                    BuildAction = "Content"
+                />
+                <File
+                    RelPath = "webImages\picturefolder-s.gif"
+                    BuildAction = "Content"
+                />
+                <File
+                    RelPath = "webImages\picture-s.gif"
+                    BuildAction = "Content"
+                />
+                <File
+                    RelPath = "webImages\refresh.gif"
+                    BuildAction = "Content"
+                />
+                <File
+                    RelPath = "webImages\save.gif"
+                    BuildAction = "Content"
+                />
+                <File
+                    RelPath = "webImages\seperator.gif"
+                    BuildAction = "Content"
+                />
+                <File
+                    RelPath = "webImages\slideshow.gif"
+                    BuildAction = "Content"
+                />
+                <File
+                    RelPath = "webImages\zoomIn.gif"
+                    BuildAction = "Content"
+                />
+                <File
+                    RelPath = "webImages\zoomOut.gif"
+                    BuildAction = "Content"
+                />
+            </Include>
+        </Files>
+    </CSHARP>
+</VisualStudioProject>
+
